@@ -1,1 +1,3 @@
+#ignore Image-Resouce, ModelFiles
 Gan/images
+*.h5

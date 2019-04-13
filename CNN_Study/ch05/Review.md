@@ -28,3 +28,8 @@ steps_per_epoch = データ数 / バッチサイズ
 - エポック: 学習データが一回使われ終わるまでが1エポック
 
 https://qiita.com/kenta1984/items/bad75a37d552510e4682
+
+
+# 疑問点
+## sample5-12.py
+- imageクラスについて調べる(loadメソッドについて)

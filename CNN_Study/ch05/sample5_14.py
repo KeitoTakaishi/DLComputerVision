@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-
+List5-14
 データ拡張と、ドロップアウトの検証コード
 
 '''
@@ -44,6 +44,7 @@ model.add(layers.Dropout(0.5))
 model.add(layers.Dense(512, activation='relu'))
 model.add(layers.Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer=optimizers.RMSprop(lr=1e-4),metrics=['acc'])
+model.save('cats_and_dogs_small_2_.h5')
 #---------------------------------------------------------------------------
 '''
 1.generatorの生成を行う

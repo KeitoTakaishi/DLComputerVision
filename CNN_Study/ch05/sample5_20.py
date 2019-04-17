@@ -10,11 +10,9 @@ from keras import models
 from keras import layers
 from keras import optimizers
 from keras.applications import VGG16
-
 import matplotlib.pyplot as plt
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-conv_base = VGG16(weights='imagenet', include_top=False,input_shape=(150,150,3))
 #--------------------------------------------------------------------------
 #Path-Setting
 base_dir = '/Users/takaishikeito/Documents/DLDatasets/cats_and_dog_small'
@@ -27,6 +25,7 @@ batch_size = 20
 
 
 #batch_sizeごとにイメージの生成を行う
+'''
 def extract_features(directory, sample_count):
     #VGG16が最終的に出力する特徴マップは(4,4,512) なのでこのモデルが学習するinput形状は(4, 4, 512)
     features = np.zeros(shape=(sample_count, 4, 4, 512))
@@ -59,6 +58,26 @@ test_features, test_labels = extract_features(test_dir, 1000)
 train_features = np.reshape(train_features, (2000, 4 * 4 * 512))
 validation_features = np.reshape(validation_features, (1000, 4 * 4 * 512))
 test_features = np.reshape(test_features, (1000, 4 * 4 * 512))
+'''
+
+train_datagen = ImageDataGenerator(rescale=1./255.,
+                              rotation_range=40,
+                              width_shift_range=0.2,
+                              height_shift_range=0.2,
+                              shear_range=0.2,
+                              zoom_range=0.2,
+                              horizontal_flip=True,
+                              fill_mode='nearest')
+
+test_datagen = ImageDataGenerator(rescale=1./255.)
+
+train_generator = train_datagen.flow_from_directory(train_dir,target_size=(150,150),
+                                                    batch_size=20,class_mode='binary')
+
+validation_generator = test_datagen.flow_from_directory(validation_dir,target_size=(150,150),
+                                                    batch_size=20,class_mode='binary')
+
+
 
 
 #--------------------------------------------------------------------------
@@ -71,8 +90,14 @@ model.add(layers.Dense(1, activation='sigmoid'))
 model.summary()
 model.compile(optimizer=optimizers.RMSprop(lr=2e-5),loss='binary_crossentropy',metrics=['acc'])
 
-history = model.fit(train_features, train_labels, epochs=30, batch_size=20,
-validation_data=(validation_features,validation_labels))
+#history = model.fit(train_features, train_labels, epochs=30, batch_size=20,
+#validation_data=(validation_features,validation_labels))
+history = model.fit_generator(
+    train_generator,
+    steps_per_epoch=100,
+    epochs=30,
+    validation_data=validation_generator,
+    validation_steps=50)
 
 model.save('cats_and_dogs_small_3.h5')
 

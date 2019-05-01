@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
+5x5の画像出力で潜在変数は100次元
 Discriminatorは単体で学習を行うが、Generatorは
 Discriminatorと合同で学習を行う。
 1.  Discriminatorの学習時の入力としては
@@ -109,7 +110,7 @@ class GAN():
     #epoch=30000
     #epochs回分だけ学習データを使い切る
     #一度に使うデータはbatch_sizeとなるので128
-    def train(self, epochs=30000, batch_size=128, save_interval=10):
+    def train(self, epochs=50000, batch_size=128, save_interval=10):
 
         print('Load Start')
         # mnistデータの読み込み
@@ -183,7 +184,7 @@ class GAN():
 
         #行と列に分ける
         fig, axs = plt.subplots(r, c)
-        save_dir = '/Users/takaishikeito/Documents/DeepLerningStudy/Gan/images'
+        save_dir = 'Images'
         if os.path.exists(save_dir) == False:
             os.mkdir(save_dir)
 
@@ -200,6 +201,6 @@ class GAN():
 #if __name__ == '__main__':
 gan = GAN()
 gan.train()
-gan.generator.save('/Users/takaishikeito/Documents/ComputerVision/Gan/gan_generator.h5')
-gan.combined.save('/Users/takaishikeito/Documents/ComputerVision/Gan/gan_conb.hdf5')
+gan.generator.save('gan_generator_5x5_100.h5')
+#gan.combined.save('/Users/takaishikeito/Documents/ComputerVision/Gan/gan_conb.hdf5')
 print('main')

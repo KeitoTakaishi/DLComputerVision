@@ -200,7 +200,7 @@ class GAN():
         plt.close()
         '''
 
-        noise = np.random.normal(0, 1, (1,self.z_dim))
+        noise = np.random.normal(0, 1, (4,self.z_dim))
         gen_imgs = self.generator.predict(noise)
         print("--------------------------------")
         print(str(gen_imgs[0].reshape(28, 28).shape))

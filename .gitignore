@@ -3,3 +3,4 @@ Gan/images
 *.h5
 *.png
 *.jpg
+*.pkl

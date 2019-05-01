@@ -17,7 +17,7 @@ from keras.models import load_model
 from keras.utils import plot_model
 
 
-model = load_model('cats_and_dogs_small_2.h5')
+model = load_model('/Users/takaishikeito/Documents/ComputerVision/CNN_Study/ch05/cats_and_dogs_small_2.h5')
 #print('########Load-Model-Info###########')
 #model.summary()
 

@@ -18,14 +18,14 @@ import numpy as np
 import time
 
 
-model = load_model('/Users/takaishikeito/Documents/ComputerVision/GanTest/gan_generator.h5', compile=False)
+model = load_model('gan_generator_50.h5', compile=False)
 print('Load-Model')
-z_dim = 100
+z_dim = 50
 
 #gen_imgs = []
 
 #fig, axs = plt.subplots(r, c)
-save_dir = '/Users/takaishikeito/Documents/ComputerVision/GanTest/Predicts'
+save_dir = 'Predicts'
 # count = 0
 # for i in range(10):
 #     #画像の生成
@@ -47,17 +47,33 @@ print(str(noise.shape))
 
 fig, ax = plt.subplots()
 count = 0
+epoch = 0
+model._make_predict_function()
+while True:
+    gen_imgs = model.predict(noise)
+    gen_imgs = 0.5 * gen_imgs + 0.5
 
-while (count < 30):
-     gen_imgs = model.predict(noise)
-     gen_imgs = 0.5 * gen_imgs + 0.5
-
-     ax.imshow(gen_imgs[0].reshape(28, 28), 'gray')
-     plt.savefig(os.path.join(save_dir, '{}.png'.format(count)))
-     plt.pause(1)
-
-     noise[0][1] += 1.0
+    ax.imshow(gen_imgs[0].reshape(28, 28), 'gray')
+    #plt.savefig(os.path.join(save_dir, '{}.png'.format(count)))
+    plt.pause(0.01)
+    plt.cla()
 
 
-     count = count + 1
-     print('increment')
+    noise[0][1] += 0.05
+    noise[0][2] += 0.05
+    noise[0][3] += 0.05
+    noise[0][4] += 0.05
+    noise[0][5] += 0.05
+    noise[0][6] += 0.05
+    noise[0][7] += 0.05
+    noise[0][8] += 0.05
+    noise[0][9] += 0.05
+    count = count + 1
+    if count > 50:
+        count = count % 50
+        noise[0][1] = -1.0
+        epoch += 1
+
+    if epoch == 3:
+        break
+    print(str(count) + 'noise[0][1]' + str(noise[0][1]))

@@ -36,7 +36,7 @@ class GAN():
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
 
         # 潜在変数の次元数
-        self.z_dim = 100
+        self.z_dim = 50
 
         optimizer = Adam(0.0002, 0.5)
 
@@ -206,7 +206,7 @@ class GAN():
         print(str(gen_imgs[0].reshape(28, 28).shape))
         print(gen_imgs[0])
         gen_imgs = 0.5 * gen_imgs + 0.5
-        save_dir = '/Users/takaishikeito/Documents/ComputerVision/GanTest/Images/'
+        save_dir='Images'
         if os.path.exists(save_dir) == False:
             os.mkdir(save_dir)
         fig, ax = plt.subplots()
@@ -219,6 +219,7 @@ class GAN():
 gan = GAN()
 
 gan.train()
-gan.generator.save('/Users/takaishikeito/Documents/ComputerVision/GanTest/gan_generator.h5')
+#gan.generator.save('gan_generator.h5')
+gan.generator.save('gan_generator_50.h5')
 #gan.combined.save('/Users/takaishikeito/Documents/ComputerVision/Gan/gan_conb.hdf5')
 print('main')

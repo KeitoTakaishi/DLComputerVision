@@ -110,7 +110,7 @@ class GAN():
     #epoch=30000
     #epochs回分だけ学習データを使い切る
     #一度に使うデータはbatch_sizeとなるので128
-    def train(self, epochs=50000, batch_size=128, save_interval=10):
+    def train(self, epochs=50000, batch_size=128, save_interval=5000):
 
         print('Load Start')
         # mnistデータの読み込み

@@ -69,12 +69,15 @@ while True:
             axs[i,j].imshow(gen_imgs[cnt, :, :, 0], 'gray')
             #axs[i,j].axis('off')
             cnt = cnt + 1
+    plt.savefig(os.path.join(save_dir, '{}.png'.format('Gan')))
     plt.pause(0.001)
     plt.cla()
 
 
     noise[0][0] += 0.1
     noise[0][1] += 0.05
+    noise[0][2] += 0.1
+    noise[0][3] += 0.05
 
     noise[1][0] += 0.05
     noise[1][1] += 0.1
@@ -88,10 +91,12 @@ while True:
     count = count + 1
     if count > 50:
         count = count % 50
-        noise[0][1] = -3.0
-        noise[1][1] = -3.0
-        noise[2][1] = -3.0
-        noise[3][1] = -3.0
+        gen_imgs = model.predict(noise)
+        gen_imgs = 0.5 * gen_imgs + 0.5
+        # noise[0][1] = -3.0
+        # noise[1][1] = -3.0
+        # noise[2][1] = -3.0
+        # noise[3][1] = -3.0
         epoch += 1
 
     print(epoch)

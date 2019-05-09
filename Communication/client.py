@@ -2,7 +2,7 @@ from socket import socket, AF_INET, SOCK_DGRAM
 import struct
 
 HOST = ''
-PORT = 5000
+PORT = 5001
 
 # ソケットを用意
 s = socket(AF_INET, SOCK_DGRAM)
@@ -16,7 +16,7 @@ while True:
     val = msg.decode()
     print(val)
     count = count + 1
-    if count > 50:
+    if count > 5:
         break
 # ソケットを閉じておく
 s.close()

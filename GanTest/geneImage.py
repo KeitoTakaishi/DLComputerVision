@@ -4,6 +4,7 @@
 '''
 from __future__ import print_function, division
 
+import keras
 from keras.datasets import mnist
 from keras.models import load_model
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout
@@ -19,9 +20,15 @@ import sys
 import matplotlib.animation as animation
 import numpy as np
 import time
+import cv2
 
-
-model = load_model('gan_generator_50.h5', compile=False)
+print('------------------------------------')
+print(keras.__version__)
+#py35 -> 2.2.2
+# Gan ->   
+print('------------------------------------')
+#model = load_model('gan_generator_50.h5', compile=False)
+model = load_model('gan_generator_50.h5')
 print('Load-Model')
 z_dim = 50
 
@@ -45,8 +52,13 @@ save_dir = 'Predicts'
 #表示
 
 noise = np.random.normal(0, 1, (4, z_dim))
-print(str(noise.shape))
-#noise[0][99] = 0.0
+start = np.random.normal(0, 1, (4, z_dim))
+target = np.random.normal(0, 1, (4, z_dim))
+
+vec = target - start
+print('noise shape: ' + str(start.shape))
+print('vec shape: ' + str(vec.shape))
+
 
 
 count = 0
@@ -56,12 +68,11 @@ model._make_predict_function()
 r = 2
 c = 2
 cnt = 0
-fig, axs = plt.subplots(r, c)
+#fig, axs = plt.subplots(r, c)
 while True:
-
+    '''
     gen_imgs = model.predict(noise)
     gen_imgs = 0.5 * gen_imgs + 0.5
-
     cnt = 0
     for i in range(r):
         for j in range(c):
@@ -103,28 +114,33 @@ while True:
     if epoch == 1:
         break
     '''
-    ax.imshow(gen_imgs[0].reshape(28, 28), 'gray')
-    #plt.savefig(os.path.join(save_dir, '{}.png'.format(count)))
-    plt.pause(0.01)
+
+    gen_imgs = model.predict(start)
+    gen_imgs = 0.5 * gen_imgs + 0.5
+    print('gen_imgs shape:' + str(gen_imgs.shape))
+    target = gen_imgs.reshape(4, 28, 28, 1)[0]
+    print(target.shape)
+    rgb_gen_imgs = cv2.cvtColor(target,cv2.COLOR_GRAY2RGB)
+    print('rgb_gen_imgs shape:' + str(rgb_gen_imgs.shape))
+
+    #plt.imshow(gen_imgs[0, :, :, 0], cmap='gray')
+    plt.imshow(rgb_gen_imgs, cmap = 'BrBG')
+
+    rgb_gen_imgs = cv2.resize(rgb_gen_imgs, None, fx = 10, fy = 10)
+    print(rgb_gen_imgs)
+    cv2.imwrite("LennaG.png",rgb_gen_imgs*255)
+    #plt.savefig(os.path.join(save_dir, '{}.png'.format('Gan')))
+    plt.pause(0.001)
     plt.cla()
 
+    start[0][0] += vec[0][0] * 0.1
 
-    noise[0][1] += 0.05
-    noise[0][2] += 0.05
-    noise[0][3] += 0.05
-    noise[0][4] += 0.05
-    noise[0][5] += 0.05
-    noise[0][6] += 0.05
-    noise[0][7] += 0.05
-    noise[0][8] += 0.05
-    noise[0][9] += 0.05
     count = count + 1
-    if count > 50:
-        count = count % 50
-        noise[0][1] = -1.0
+    if count > 1:
+        start = np.random.normal(0, 1, (4, z_dim))
+        target = np.random.normal(0, 1, (4, z_dim))
+        vec = target - start
         epoch += 1
-
-    if epoch == 3:
+        count = 0
+    if epoch == 2:
         break
-    print(str(count) + 'noise[0][1]' + str(noise[0][1]))
-    '''

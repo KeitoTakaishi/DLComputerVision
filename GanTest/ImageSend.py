@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division
-
 from keras.datasets import mnist
 from keras.models import load_model
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout
@@ -19,48 +18,44 @@ import time
 import socket
 import cv2
 
-
 model = load_model('gan_generator_50.h5', compile=False)
 print('Load-Model')
 z_dim = 50
-
-#gen_imgs = []
-
-#fig, axs = plt.subplots(r, c)
-save_dir = 'Predicts'
-# count = 0
-# for i in range(10):
-#     #画像の生成
-#     img = model.predict(noise)
-#     img = 0.5 * img + 0.5
-#     gen_imgs.append(img)
-#     #plt
-#     plt.imshow(gen_imgs[count])
-#     plt.savefig(os.path.join(save_dir, '{}.png'.format(count)))
-#     count += 1
-# plt.close()
-
-
-#表示
-
+#save_dir = 'Predicts'
 noise = np.random.normal(0, 1, (1, z_dim))
-print(str(noise.shape))
-#noise[0][99] = 0.0
 
-fig, ax = plt.subplots()
-count = 0
-epoch = 0
+#fig, ax = plt.subplots()
+#count = 0
+#epoch = 0
 model._make_predict_function()
 
 #------------------------------------------------------
+'''
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 6000))
 s.listen(1)
 print("接続待機中")
 soc, addr = s.accept()
 print(str(addr)+"と接続完了")
+'''
+udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+to_send_addr = ('127.0.0.1', 9999)
+
 #------------------------------------------------------
 
+gen_imgs = model.predict(noise)
+gen_imgs = 0.5 * gen_imgs + 0.5
+while True:
+    msg = input("> ")
+    img = gen_imgs[0].reshape(28,28)
+    print(img)
+    #plt.imshow(img, 'gray')
+    #plt.show()
+    udp.sendto(img.tostring(), to_send_addr)
+udp.close()
+
+
+'''
 while True:
     gen_imgs = model.predict(noise)
     gen_imgs = 0.5 * gen_imgs + 0.5
@@ -68,12 +63,6 @@ while True:
 
     byteData = gen_imgs.tostring()
     soc.send(byteData)
-
-    #ax.imshow(gen_imgs[0].reshape(28, 28), 'gray')
-    #plt.savefig(os.path.join(save_dir, '{}.png'.format(count)))
-    #plt.pause(0.01)
-    #plt.cla()
-
 
     noise[0][1] += 0.05
     noise[0][2] += 0.05
@@ -93,3 +82,5 @@ while True:
     if epoch == 3:
         break
     print(str(count) + 'noise[0][1]' + str(noise[0][1]))
+
+'''

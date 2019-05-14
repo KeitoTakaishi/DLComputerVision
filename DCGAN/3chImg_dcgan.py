@@ -1,4 +1,4 @@
-# ccoding: utf-8
+# coding: utf-8
 
 '''
 optimizer = Adam(0.0002, 0.5)
@@ -22,12 +22,12 @@ import numpy as np
 import cv2
 
 class DCGAN():
-    def init():
+    def __init__(self):
         #input img is 250*250*3
-        self.img_rows = 250
-        self.img_cols = 250
+        self.img_rows = 128
+        self.img_cols = 128
         self.img_channels = 3
-        self.img_shape = (self.img_rows, self.img_cols, self.channels)
+        self.img_shape = (self.img_rows, self.img_cols, self.img_channels)
         self.z_dim = 100
         optimizer = Adam(0.0002, 0.5)
 
@@ -41,76 +41,85 @@ class DCGAN():
         #self.combined = self.build_combined2()
         self.combined.compile(loss='binary_crossentropy', optimizer=optimizer)
 
-def build_generator(self):
-    noise_shape = self.z_dim
-    model = Sequential()
-    model.add(Dense(1024, input_shape=noise_shape))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dense(128*7*7))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Reshape((7,7,128), input_shape=(128*7*7,)))
-    model.add(UpSampling2D((2,2)))#転置畳み込みのために特徴マップを拡大
-    model.add(Convolution2D(64,5,5,border_mode='same'))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(UpSampling2D((2,2)))
-    model.add(Convolution2D(1,5,5,border_mode='same'))
-    model.add(Activation('tanh'))
-    model.summary()
 
-    return model
+    def build_generator(self):
+        noise_shape = (self.z_dim,)
+
+        model = Sequential()
+
+        model.add(Dense(128 * 32 * 32, activation="relu", input_shape=noise_shape))
+        model.add(Reshape((32, 32, 128)))
+        model.add(BatchNormalization(momentum=0.8))
+        model.add(UpSampling2D())
+        model.add(Conv2D(128, kernel_size=3, padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(momentum=0.8))
+        model.add(UpSampling2D())
+        model.add(Conv2D(64, kernel_size=3, padding="same"))
+        model.add(Activation("relu"))
+        model.add(BatchNormalization(momentum=0.8))
+        model.add(Conv2D(3, kernel_size=3, padding="same"))
+        model.add(Activation("tanh"))
+
+        model.summary()
+
+        noise = Input(shape=noise_shape)
+        img = model(noise)
+
+        return model
 
 
-def build_discriminator(self):
-    img_shape = (self.img_rows, self.img_rows, self.channels)
+    def build_discriminator(self):
+        img_shape = (self.img_rows, self.img_rows, self.img_channels)
+        model = Sequential()
+        #model.add(Conv2D(64,(5,5), subsample=(2, 2), border_mode='same', img_shape=img_shape))
+        model.add(Convolution2D(64,5,5, subsample=(2,2),\
+                  border_mode='same', input_shape=img_shape))
+        model.add(LeakyReLU(0.2))
+        model.add(Convolution2D(128, 5, 5, subsample=(2,2)))
+        model.add(LeakyReLU(0.2))
+        #fullyConnectedLayer
+        model.add(Flatten())
+        model.add(Dense(256))
+        model.add(LeakyReLU(0.2))
+        model.add(Dropout(0.5))
+        model.add(Dense(1))
+        model.add(Activation('sigmoid'))
+        return model
 
-    model = Sequential()
-    model.add(Convolution2D(64,5,5, subsample=(2, 2), border_mode='same'), img_shape =img_shape)
-    model.add(LeakyReLU(0.2))
-    model.add(Convolution2D(128, 5, 5, subsample=(2,2)))
-    model.add(LeakyReLU(0.2))
-    #fullyConnectedLayer
-    model.add(Flatten())
-    model.add(Dense(256))
-    model.add(LeakyReLU(0.2))
-    model.add(Dropout(0.5))
-    model.add(Dense(1))
-    model.add(Activation('sigmoid'))
-    return model
-
-def build_combined1(self):
+    def build_combined1(self):
         self.discriminator.trainable = False
         model = Sequential([self.generator, self.discriminator])
         return model
 
-def train(self, epochs=30001, batch_size=128, save_interval=100):
-
+    def train(self, epochs=10001, batch_size=128, save_interval=100):
         print('Load Start')
         # mnistデータの読み込み
-        train = []
-        dataPath = 'drive/My Drive/DLRowData/'
+        train_images = []
+        basePath = './Data/'
         filename = os.listdir(basePath)
         for f in filename:
             im = cv2.imread(basePath + f)
-            train.append(im)
-        print('Load Done')
-
+            im = im.astype('float32')
+            #im = im/127.5
+            #im -= np.ones((im.shape))
+            train_images.append(im)
+        
+        train_images = np.array(train_images)
+        print(train_images.shape)
         # 値を-1 to 1に規格化=============================
         train_images = train_images.astype('float32')
         train_images = train_images/127.5
         train_images -= np.ones((train_images.shape))
         # ==============================================
-
+        print('Load Done')
+        #print(train_images.shape)
         #axisで指定した位置に1を代入する
-        train_images = np.expand_dims(train_images, axis=3)
+        #train_images = np.expand_dims(train_images, axis=3)
         half_batch = int(batch_size / 2)
 
         for epoch in range(epochs):
-            #Discriminator
-            #GenerateImg
-            noise = np.random.normal(0, 1, (half_batch, self.z_dim))
+            noise = np.random.normal(0, 1, (half_batch, 100))
             gen_imgs = self.generator.predict(noise)
             #TruthImg
             idx = np.random.randint(0, train_images.shape[0], half_batch)
@@ -143,20 +152,20 @@ def train(self, epochs=30001, batch_size=128, save_interval=100):
         gen_imgs = self.generator.predict(noise)
         gen_imgs = 0.5 * gen_imgs + 0.5
 
-    
-        save_dir = './drive/My Drive/DCGan/Images'
+        save_dir = './FaceImages'
         if os.path.exists(save_dir) == False:
             os.mkdir(save_dir)
         
 
         fig, ax = plt.subplots()
-        ax.imshow(gen_imgs[0].reshape(250, 250, 3), 'gray')
         fig.savefig(os.path.join(save_dir, '{}.png'.format(epoch)))
         plt.close()
 
 
+
 dcgan = DCGAN()
+print(dcgan.z_dim)
 dcgan.train()
-modelSavingPath = './drive/My Drive/DCGan/model.h5' 
-gan.generator.save(modelSavingPath)
+modelSavingPath = './faceModel.h5' 
+dcgan.generator.save(modelSavingPath)
 print('Done')

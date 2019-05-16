@@ -100,6 +100,8 @@ class DCGAN():
         print('Load Start')
         # mnistデータの読み込み
         (train_images, train_labels),(test_images, test_labels) = mnist.load_data()
+        print(type(train_images))
+        print(train_images.shape)
         print('Load Done')
 
         # 値を-1 to 1に規格化=============================

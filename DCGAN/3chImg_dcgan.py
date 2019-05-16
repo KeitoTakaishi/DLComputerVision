@@ -98,22 +98,28 @@ class DCGAN():
         train_images = []
         basePath = './Data/'
         filename = os.listdir(basePath)
+        
+        
         for f in filename:
             im = cv2.imread(basePath + f)
             im = im.astype('float32')
-            #im = im/127.5
-            #im -= np.ones((im.shape))
             train_images.append(im)
         
+        
+        
         train_images = np.array(train_images)
+        
         print(train_images.shape)
         # 値を-1 to 1に規格化=============================
-        train_images = train_images.astype('float32')
-        train_images = train_images/127.5
-        train_images -= np.ones((train_images.shape))
+        train_images = (train_images.astype(np.float32) - 127.5) / 127.5
+        
+        #train_images = train_images.astype('float32')
+        #train_images = train_images/127.5
+        #train_images -= np.ones((train_images.shape))
         # ==============================================
         print('Load Done')
-        #print(train_images.shape)
+        
+        
         #axisで指定した位置に1を代入する
         #train_images = np.expand_dims(train_images, axis=3)
         half_batch = int(batch_size / 2)
@@ -146,7 +152,6 @@ class DCGAN():
                 self.sample_images(epoch)
 
 
-
     def sample_images(self, epoch):
         noise = np.random.normal(0, 1, (1, self.z_dim))
         gen_imgs = self.generator.predict(noise)
@@ -156,10 +161,9 @@ class DCGAN():
         if os.path.exists(save_dir) == False:
             os.mkdir(save_dir)
         
-
-        fig, ax = plt.subplots()
-        fig.savefig(os.path.join(save_dir, '{}.png'.format(epoch)))
-        plt.close()
+        print(gen_imgs.shape)
+        cv2.imwrite(save_dir+'/{epoch}.jpg'.format(epoch=epoch), gen_imgs[0]*255.0)
+        #plt.close()
 
 
 
